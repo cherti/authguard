@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	auth "github.com/abbot/go-http-auth"
 	"net/http"
 	"net/http/httputil"
-	auth "github.com/abbot/go-http-auth"
 )
 
 // addresses and protocols
@@ -49,8 +49,7 @@ func redirectIt(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Parse()
 
-	fmt.Println("starting redirector from", *outerAddress, "to", *innerAddress )
-
+	fmt.Println("starting redirector from", *outerAddress, "to", *innerAddress)
 
 	if *useAuth {
 		fmt.Println("HTTP Basic Auth enabled")
@@ -60,7 +59,6 @@ func main() {
 		fmt.Println("HTTP Basic Auth disabled")
 		http.HandleFunc("/", redirectIt)
 	}
-
 
 	var err error
 
