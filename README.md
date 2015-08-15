@@ -1,12 +1,12 @@
 # AuthGuard
 
-AuthGuard is a tool that allows redirecting an HTTP-request and add HTTP Basic Auth as well as TLS into the chain.
+AuthGuard is a tool that allows transparent addition of HTTP Basic Auth as well as TLS to a webservice.
 
-This could, for example, be used to add Basic Auth and TLS to a webservice that doesn't provide that.
+This could, for example, be used to do so to a webservice that doesn't provide that on its own.
 Just firewall that service for everything but localhost.
 Then fire up AuthGuard next to that service and use it as a proxy to your service with enabled Authentication and TLS.
 
-One concrete example is the [Prometheus](www.prometheus.io)-monitoring-system, which doesn't provide authentication out of the box.
+One specific example is the [Prometheus](www.prometheus.io)-monitoring-system, which doesn't provide authentication out of the box.
 
 
 ## Building and running
