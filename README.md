@@ -40,6 +40,7 @@ Configuration is done soley via commandline options:
       -auth=true: use HTTP-Basic-Auth for outer connection
       -user="authguard": user for HTTP basic auth outwards
       -pass="authguard": password for HTTP basic auth outwards
+	  -htpasswd="": htpasswd-file to use instead of credentials provided via -user and -pass
     
       -tls=true: use TLS for outer connection
       -crt="": path to TLS public key file for outer connection
