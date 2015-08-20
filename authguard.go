@@ -17,6 +17,7 @@ var innerScheme = flag.String("scheme", "http", "scheme to use for connection to
 var useAuth = flag.Bool("auth", true, "use HTTP-Basic-Auth for outer connection")
 var user = flag.String("user", "authguard", "user for HTTP basic auth outwards")
 var pass = flag.String("pass", "authguard", "password for HTTP basic auth outwards")
+var htpasswdfile = flag.String("htpasswd", "", "htpasswd-file to use if any; invalidates -user and -pass")
 
 // TLS
 var useTLS = flag.Bool("tls", true, "use TLS for outer connection")
@@ -53,7 +54,12 @@ func main() {
 
 	if *useAuth {
 		fmt.Println("HTTP Basic Auth enabled")
-		authenticator := auth.NewBasicAuthenticator("", Secret)
+		var authenticator *auth.BasicAuth
+		if *htpasswdfile == "" {
+			authenticator = auth.NewBasicAuthenticator("", Secret)
+		} else {
+			authenticator = auth.NewBasicAuthenticator("", auth.HtpasswdFileProvider(*htpasswdfile))
+		}
 		http.HandleFunc("/", auth.JustCheck(authenticator, redirectIt))
 	} else {
 		fmt.Println("HTTP Basic Auth disabled")
