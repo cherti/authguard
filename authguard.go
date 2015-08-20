@@ -56,6 +56,15 @@ func main() {
 		fmt.Println("HTTP Basic Auth enabled")
 		var authenticator *auth.BasicAuth
 		if *htpasswdfile == "" {
+
+			// check whether the htpasswd file exists
+			// very simple check just to catch typos etc.,
+			// doesn't say anything about validity or so
+			if _, err := os.Stat(filename); os.IsNotExist(err) {
+				fmt.Println("specified htpasswd-file does not exist")
+				os.Exit(1)
+			}
+
 			authenticator = auth.NewBasicAuthenticator("", Secret)
 		} else {
 			authenticator = auth.NewBasicAuthenticator("", auth.HtpasswdFileProvider(*htpasswdfile))
