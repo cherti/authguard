@@ -47,6 +47,12 @@ Configuration is done soley via commandline options:
       -key="": path to TLS private key file for outer connection
 
 
+## Important information
+
+AuthGuard is written in go Go and Go is entirely statically linked.
+This means if you expose AuthGuard to the outside world (which is its main purpose) and a (security-related) bug in Go is found, you have to recompile authguard and replace old authguard-binaries with the newly compiled one!
+
+
 ## License
 
 This works is released under the [GNU General Public License v3](https://www.gnu.org/licenses/gpl-3.0.txt). You can find a copy of this license at https://www.gnu.org/licenses/gpl-3.0.txt.
