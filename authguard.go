@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	auth "github.com/abbot/go-http-auth"
 	"net/http"
 	"net/http/httputil"
@@ -57,16 +58,16 @@ func main() {
 		var authenticator *auth.BasicAuth
 		if *htpasswdfile == "" {
 
+			authenticator = auth.NewBasicAuthenticator("", Secret)
+		} else {
 			// check whether the htpasswd file exists
 			// very simple check just to catch typos etc.,
 			// doesn't say anything about validity or so
-			if _, err := os.Stat(filename); os.IsNotExist(err) {
+			if _, err := os.Stat(*htpasswdfile); os.IsNotExist(err) {
 				fmt.Println("specified htpasswd-file does not exist")
 				os.Exit(1)
 			}
 
-			authenticator = auth.NewBasicAuthenticator("", Secret)
-		} else {
 			authenticator = auth.NewBasicAuthenticator("", auth.HtpasswdFileProvider(*htpasswdfile))
 		}
 		http.HandleFunc("/", auth.JustCheck(authenticator, redirectIt))
