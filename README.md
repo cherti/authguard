@@ -46,6 +46,10 @@ Configuration is done soley via commandline options:
       -crt="": path to TLS public key file for outer connection
       -key="": path to TLS private key file for outer connection
 
+## Example Service-File
+
+If you are using systemd, you can use the authguard.service file in the repository by copying this to /etc/systemd/system and the authguard binary to /opt.
+
 
 ## Important information
 

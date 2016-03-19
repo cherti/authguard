@@ -1,0 +1,12 @@
+[Unit]
+Description=Authguard HTTP Reverse Proxy
+After=network-online.service
+Wants=network-online.target
+ 
+[Service]
+Type=simple
+ExecStart=/opt/authguard -web.listen-address=:8080 -web.proxy-to=127.0.0.1:9090 -user=username -pass=password -crt=/etc/ssl/private/tmpcert.pem -key=/etc/ssl/private/tmpkey.pem
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
