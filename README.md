@@ -53,7 +53,7 @@ If you are using systemd, you can use the authguard.service file in the reposito
 
 ## Important information
 
-AuthGuard is written in go Go and Go is entirely statically linked.
+AuthGuard is written in Go and Go is entirely statically linked.
 This means if you expose AuthGuard to the outside world (which is its main purpose) and a (security-related) bug in Go is found, you have to recompile authguard and replace old authguard-binaries with the newly compiled one!
 
 
