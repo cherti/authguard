@@ -7,6 +7,15 @@ Wants=network-online.target
 Type=simple
 ExecStart=/opt/authguard -web.listen-address=:8080 -web.proxy-to=127.0.0.1:9090 -user=username -pass=password -crt=/etc/ssl/private/tmpcert.pem -key=/etc/ssl/private/tmpkey.pem
 Restart=always
+
+# optional systemd hardening-options
+# Documentation about these can be found under systemd.exec(5)
+# The linked websites might be for a newer systemd version than your installed one
+# PrivateDevices=true      # https://www.freedesktop.org/software/systemd/man/systemd.exec.html#PrivateDevices=
+# PrivateTmp=true          # https://www.freedesktop.org/software/systemd/man/systemd.exec.html#PrivateTmp=
+# ProtectHome=true         # https://www.freedesktop.org/software/systemd/man/systemd.exec.html#ProtectHome=
+# ProtectSystem=full       # https://www.freedesktop.org/software/systemd/man/systemd.exec.html#ProtectSystem=
+# NoNewPrivileges=true     # https://www.freedesktop.org/software/systemd/man/systemd.exec.html#NoNewPrivileges=
  
 [Install]
 WantedBy=multi-user.target
