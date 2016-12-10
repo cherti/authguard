@@ -28,16 +28,15 @@ func director(r *http.Request) {
 	r.URL.Host = *innerAddress
 }
 
-func redirectIt(w http.ResponseWriter, r *http.Request) {
+func performRedirect(w http.ResponseWriter, r *http.Request) {
 	proxy := &httputil.ReverseProxy{Director: director}
 	proxy.ServeHTTP(w, r)
 }
 
 func redirectAfterAuthCheck(w http.ResponseWriter, r *http.Request) {
-
 	u, p, ok := r.BasicAuth()
 	if ok && u == *user && p == *pass {
-		redirectIt(w, r)
+		performRedirect(w, r)
 	} else {
 		// send out unauthenticated response asking for basic auth
 		// (to make sure people that mistyped can retry)
@@ -57,7 +56,7 @@ func main() {
 		http.HandleFunc("/", redirectAfterAuthCheck)
 	} else {
 		fmt.Println("HTTP Basic Auth disabled")
-		http.HandleFunc("/", redirectIt)
+		http.HandleFunc("/", performRedirect)
 	}
 
 	var err error
