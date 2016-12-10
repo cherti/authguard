@@ -39,14 +39,11 @@ func redirectAfterAuthCheck(w http.ResponseWriter, r *http.Request) {
 	if ok && u == *user && p == *pass {
 		redirectIt(w, r)
 	} else {
-		if !ok {
-			// send out response asking for basic auth
-			w.Header().Set("WWW-Authenticate", `Basic realm="foo"`)
-			w.WriteHeader(401)
-			w.Write([]byte("Unauthenticated.\n"))
-		} else {
-			http.Error(w, "Unauthenticated", 401)
-		}
+		// send out unauthenticated response asking for basic auth
+		// (to make sure people that mistyped can retry)
+		w.Header().Set("WWW-Authenticate", `Basic realm="all"`)
+		w.WriteHeader(401)
+		w.Write([]byte("Unauthenticated.\n"))
 	}
 }
 
