@@ -6,7 +6,7 @@ This could, for example, be used to do so to a webservice that doesn't provide t
 Just firewall that service for everything but localhost.
 Then fire up AuthGuard next to that service and use it as a proxy to your service with enabled Authentication and TLS.
 
-One specific example is the [Prometheus](https://www.prometheus.io)-monitoring-system, which doesn't provide authentication out of the box.
+One specific example is the [Prometheus](https://www.prometheus.io)-monitoring-system, which doesn't provide authentication out of the box but leaves that to specialized tools for that job.
 
 
 ## Building and running
@@ -32,19 +32,18 @@ One specific example is the [Prometheus](https://www.prometheus.io)-monitoring-s
 
 Configuration is done soley via commandline options:
 
-    Usage of ./authguard:
-      -web.listen-address=":8081": address exposed to outside
-      -web.proxy-to="127.0.0.1:8080": address to proxy to
-      -scheme="http": scheme to use for connection to target (either http or https)
-    
-      -auth=true: use HTTP-Basic-Auth for outer connection
-      -user="authguard": user for HTTP basic auth outwards
-      -pass="authguard": password for HTTP basic auth outwards
-	  -htpasswd="": htpasswd-file to use instead of credentials provided via -user and -pass
-    
-      -tls=true: use TLS for outer connection
-      -crt="": path to TLS public key file for outer connection
-      -key="": path to TLS private key file for outer connection
+    -web.listen-address=":8081": address exposed to outside
+    -web.proxy-to="127.0.0.1:8080": address to proxy to
+    -scheme="http": scheme to use for connection to target (either http or https)
+  
+    -auth=true: use HTTP-Basic-Auth for outer connection
+    -user="authguard": user for HTTP basic auth outwards
+    -pass="authguard": password for HTTP basic auth outwards
+  
+    -tls=true: use TLS for outer connection
+    -crt="": path to TLS public key file for outer connection
+    -key="": path to TLS private key file for outer connection
+
 
 ## Example Service-File
 
