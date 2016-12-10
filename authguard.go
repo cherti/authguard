@@ -3,14 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	auth "github.com/abbot/go-http-auth"
 	"net/http"
 	"net/http/httputil"
 )
 
 // addresses and protocols
-var outerAddress = flag.String("web.listen-address", ":8081", "address exposed to outside")
+var outerAddress = flag.String("web.listen-address", ":8080", "address exposed to outside")
 var innerAddress = flag.String("web.proxy-to", "127.0.0.1:8080", "address to proxy to")
 var innerScheme = flag.String("scheme", "http", "scheme to use for connection to target (either http or https)")
 
@@ -18,24 +16,11 @@ var innerScheme = flag.String("scheme", "http", "scheme to use for connection to
 var useAuth = flag.Bool("auth", true, "use HTTP-Basic-Auth for outer connection")
 var user = flag.String("user", "authguard", "user for HTTP basic auth outwards")
 var pass = flag.String("pass", "authguard", "password for HTTP basic auth outwards")
-var htpasswdfile = flag.String("htpasswd", "", "htpasswd-file to use if any; invalidates -user and -pass")
 
 // TLS
 var useTLS = flag.Bool("tls", true, "use TLS for outer connection")
 var crt = flag.String("crt", "", "path to TLS public key file for outer connection")
 var key = flag.String("key", "", "path to TLS private key file for outer connection")
-
-// return secret for basic http-auth
-func Secret(puser, realm string) string {
-	if *user == puser {
-
-		magic := []byte("$magic$")
-		salt := []byte("salt")
-		e := auth.MD5Crypt([]byte(*pass), salt, magic)
-		return string(e)
-	}
-	return ""
-}
 
 // modifies incoming http.request to go to target
 func director(r *http.Request) {
@@ -48,6 +33,23 @@ func redirectIt(w http.ResponseWriter, r *http.Request) {
 	proxy.ServeHTTP(w, r)
 }
 
+func redirectAfterAuthCheck(w http.ResponseWriter, r *http.Request) {
+
+	u, p, ok := r.BasicAuth()
+	if ok && u == *user && p == *pass {
+		redirectIt(w, r)
+	} else {
+		if !ok {
+			// send out response asking for basic auth
+			w.Header().Set("WWW-Authenticate", `Basic realm="foo"`)
+			w.WriteHeader(401)
+			w.Write([]byte("Unauthenticated.\n"))
+		} else {
+			http.Error(w, "Unauthenticated", 401)
+		}
+	}
+}
+
 func main() {
 	flag.Parse()
 
@@ -55,22 +57,7 @@ func main() {
 
 	if *useAuth {
 		fmt.Println("HTTP Basic Auth enabled")
-		var authenticator *auth.BasicAuth
-		if *htpasswdfile == "" {
-
-			authenticator = auth.NewBasicAuthenticator("", Secret)
-		} else {
-			// check whether the htpasswd file exists
-			// very simple check just to catch typos etc.,
-			// doesn't say anything about validity or so
-			if _, err := os.Stat(*htpasswdfile); os.IsNotExist(err) {
-				fmt.Println("specified htpasswd-file does not exist")
-				os.Exit(1)
-			}
-
-			authenticator = auth.NewBasicAuthenticator("", auth.HtpasswdFileProvider(*htpasswdfile))
-		}
-		http.HandleFunc("/", auth.JustCheck(authenticator, redirectIt))
+		http.HandleFunc("/", redirectAfterAuthCheck)
 	} else {
 		fmt.Println("HTTP Basic Auth disabled")
 		http.HandleFunc("/", redirectIt)
