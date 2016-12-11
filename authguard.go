@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"crypto/subtle"
 	"flag"
 	"log"
@@ -20,9 +21,11 @@ var (
 	innerScheme  = flag.String("scheme", "http", "scheme to use for connection to target (either http or https)")
 
 	// HTTP basic auth
-	useAuth = flag.Bool("auth", true, "use HTTP-Basic-Auth for outer connection")
-	user    = flag.String("user", "authguard", "user for HTTP basic auth outwards")
-	pass    = flag.String("pass", "authguard", "password for HTTP basic auth outwards")
+	useAuth  = flag.Bool("auth", true, "use HTTP-Basic-Auth for outer connection")
+	user     = flag.String("user", "authguard", "user for HTTP basic auth outwards")
+	pass     = flag.String("pass", "authguard", "password for HTTP basic auth outwards")
+	userhash [32]byte
+	passhash [32]byte
 
 	// TLS
 	crt = flag.String("crt", "", "path to TLS public key file for outer connection")
@@ -48,7 +51,14 @@ func performRedirect(w http.ResponseWriter, r *http.Request) {
 // the intended redirect or asks for authentication-credentials once again.
 func redirectAfterAuthCheck(w http.ResponseWriter, r *http.Request) {
 	u, p, ok := r.BasicAuth()
-	if ok && subtle.ConstantTimeCompare([]byte(u), []byte(*user)) == 1 && subtle.ConstantTimeCompare([]byte(p), []byte(*pass)) == 1 {
+
+	uhash := sha256.Sum256([]byte(u))
+	phash := sha256.Sum256([]byte(p))
+
+	user_correct := subtle.ConstantTimeCompare(uhash[:], userhash[:]) == 1
+	pass_correct := subtle.ConstantTimeCompare(phash[:], passhash[:]) == 1
+
+	if ok && user_correct && pass_correct {
 		performRedirect(w, r)
 	} else {
 		// send out unauthenticated response asking for basic auth
@@ -64,6 +74,9 @@ func main() {
 		logInfo.SetFlags(3)
 		logError.SetFlags(3)
 	}
+
+	userhash = sha256.Sum256([]byte(*user))
+	passhash = sha256.Sum256([]byte(*pass))
 
 	logInfo.Println("starting redirector from", *outerAddress, "to", *innerAddress)
 
