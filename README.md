@@ -40,9 +40,10 @@ Configuration is done soley via commandline options:
     -user="authguard": user for HTTP basic auth outwards
     -pass="authguard": password for HTTP basic auth outwards
   
-    -tls=true: use TLS for outer connection
     -crt="": path to TLS public key file for outer connection
     -key="": path to TLS private key file for outer connection
+
+If neither `-crt` nor `-key` is provided, TLS will be deactivated.
 
 
 ## Example Service-File
