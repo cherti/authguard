@@ -22,17 +22,20 @@ var useTLS = flag.Bool("tls", true, "use TLS for outer connection")
 var crt = flag.String("crt", "", "path to TLS public key file for outer connection")
 var key = flag.String("key", "", "path to TLS private key file for outer connection")
 
-// modifies incoming http.request to go to target
+// director modifies the incoming http.request to go to the specified innerAddress
 func director(r *http.Request) {
 	r.URL.Scheme = *innerScheme
 	r.URL.Host = *innerAddress
 }
 
+// performRedirect redirects the incoming request to what is specified in the innerAddress-field
 func performRedirect(w http.ResponseWriter, r *http.Request) {
 	proxy := &httputil.ReverseProxy{Director: director}
 	proxy.ServeHTTP(w, r)
 }
 
+// redirectAfterAuthCheck checks for correct authentication-credentials and either applies
+// the intended redirect or asks for authentication-credentials once again.
 func redirectAfterAuthCheck(w http.ResponseWriter, r *http.Request) {
 	u, p, ok := r.BasicAuth()
 	if ok && u == *user && p == *pass {
